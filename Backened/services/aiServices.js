@@ -1,42 +1,69 @@
-const { GoogleGenAI } = require('@google/genai');
-require('dotenv').config();
-const key = new GoogleGenAI({
+const { GoogleGenAI } = require("@google/genai");
+require("dotenv").config();
+
+const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
-})
+});
 
-const reviewCode = async(code)=>{
-    const userprompt = `You are an expert software engineer.
+const reviewCode = async (code, language) => {
 
-Review the following JavaScript code.
+    const userPrompt = `
+You are a senior software engineer and professional code reviewer.
 
-Return only JSON with the following format:
+Review the following ${language} code carefully.
 
-{
- "score":0,
- "bugs":[],
- "security":[],
- "performance":[],
- "readability":[],
- "improvedCode":"",
- "summary":""
-}
+Your review must be practical, specific, and easy for a developer to understand.
+
+Analyze:
+
+1. Overall code quality
+2. Bugs
+3. Security vulnerabilities
+4. Performance issues
+5. Readability
+6. Best practices
+7. TimeComplexity
+8. SpaceComplexity
+9. Improved code
+10. Summary
+
+Programming Language:
+${language}
 
 Code:
 ${code}
 `;
 
-    const completion = await key.models.generateContent({
-
+    const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: userprompt,
+
+        contents: userPrompt,
+
         config: {
-            responseMimeType: "application/json",
-            systemInstruction: "You are an expert code reviewer.",
-        },
+            systemInstruction: `
+You are an expert software engineer.
+
+You must return ONLY valid JSON.
+
+Never return markdown.
+Never return explanations outside the JSON.
+Always follow the requested JSON structure.
+
+For every issue:
+- Give a clear title
+- Give a severity
+- Explain the problem
+- Give a recommendation
+`,
+
+            responseMimeType: "application/json"
+        }
     });
 
-    return JSON.parse(completion.text);
-}
+    const result = JSON.parse(response.text);
+
+    return  (result.summary , result.Bugs  , result.TimeComplexity , result.SpaceComplexity );
+};
 
 module.exports = {
     reviewCode

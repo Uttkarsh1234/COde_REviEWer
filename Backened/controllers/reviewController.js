@@ -1,16 +1,28 @@
 const aiService = require('../services/aiServices');
+const Review = require("../modals/Review");
+const { reviewSchema } = require("../validators/validate");
+
 
 exports.reviewCode = async(req,res)=>{
     try{
-        const {code} = req.body;
+        const validation = reviewSchema.safeParse(req.body);
 
-        if(!code){
+        if(!validation.success){
             return res.status(400).json({
-                message: 'Code not found'
+                success: false,
+                message: "Invalid input",
+                errors: validation.error.issues
             });
         }
 
-        const result = await aiService.reviewCode(code);
+        const {code,language} = validation.data;
+
+        const result = await aiService.reviewCode(code,language);
+        const review = await Review.create({
+            code,
+            language,
+            output: result
+        });
 
         res.status(200).json(result);
     }catch(error){

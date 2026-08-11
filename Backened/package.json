@@ -5,7 +5,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^8.24.2",
-    "openai": "^6.49.0"
+    "openai": "^6.49.0",
+    "zod": "^4.4.3"
   },
   "name": "backened",
   "version": "1.0.0",
