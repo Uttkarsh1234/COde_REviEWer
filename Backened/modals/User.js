@@ -1,6 +1,4 @@
 const mongoose  = require('mongoose');
-const { maxLength, lowercase, minLength } = require('zod');
-
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -16,7 +14,7 @@ const userSchema = new mongoose.Schema(
             lowercase: true,
             trim: true
         },
-        passowrd: {
+        password: {
             type: String,
             required: true,
             minLength: 5

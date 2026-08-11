@@ -11,6 +11,6 @@ router.get("/", getAllReviews);
 
 router.get("/:id", getSpecificReview);
 
-router.delete("/:id", deleteOneReview);
+router.delete("/delete/:id", deleteOneReview);
 
 module.exports = router;
