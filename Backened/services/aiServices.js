@@ -17,15 +17,32 @@ Your review must be practical, specific, and easy for a developer to understand.
 Analyze:
 
 1. Overall code quality
-2. Bugs
+2. bugs
 3. Security vulnerabilities
 4. Performance issues
 5. Readability
 6. Best practices
-7. TimeComplexity
-8. SpaceComplexity
+7. timecomplexity
+8. spacecomplexity
 9. Improved code
-10. Summary
+10.summary
+
+Return ONLY this JSON structure:
+
+{
+  "summary": "",
+  "bugs": [
+    {
+      "title": "",
+      "severity": "",
+      "recommendation": ""
+    }
+  ],
+  "complexity": {
+    "time": "",
+    "space": ""
+  }
+}
 
 Programming Language:
 ${language}
@@ -52,8 +69,8 @@ Always follow the requested JSON structure.
 For every issue:
 - Give a clear title
 - Give a severity
-- Explain the problem
-- Give a recommendation
+- Explain the problem in a precise way
+- Give a recommendation very precisely and whould be very short
 `,
 
             responseMimeType: "application/json"
@@ -62,7 +79,12 @@ For every issue:
 
     const result = JSON.parse(response.text);
 
-    return  (result.summary , result.Bugs  , result.TimeComplexity , result.SpaceComplexity );
+    return  {
+        summary: result.summary,
+        bugs: result.bugs,
+        timeComplexity: result.complexity?.time,
+        spaceComplexity: result.complexity?.space
+    };
 };
 
 module.exports = {

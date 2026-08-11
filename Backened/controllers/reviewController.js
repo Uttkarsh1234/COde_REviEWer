@@ -15,16 +15,20 @@ exports.reviewCode = async(req,res)=>{
             });
         }
 
-        const {code,language} = validation.data;
+        const {language,code} = validation.data;
 
         const result = await aiService.reviewCode(code,language);
         const review = await Review.create({
+            // userId: req.user.id,
             code,
             language,
             output: result
         });
 
-        res.status(200).json(result);
+        res.status(200).json({
+            success: true,
+            result
+        });
     }catch(error){
         res.status(500).json({
             error: error.message
