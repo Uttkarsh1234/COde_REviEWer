@@ -187,9 +187,31 @@ const logoutUser = async (req, res) => {
     }
 };
 
+const googleAuthCallback = async (req, res) => {
+    try {
+        if (!req.user) {
+            const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+            return res.redirect(`${frontendUrl}/?auth_error=authentication_failed`);
+        }
+
+        const token = createToken(req.user._id);
+        res.cookie("token", token, cookieOptions);
+
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res.redirect(`${frontendUrl}/?token=${token}&login=success`);
+    } catch (error) {
+        console.error("Google OAuth callback error:", error);
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res.redirect(`${frontendUrl}/?auth_error=${encodeURIComponent(error.message || "oauth_failed")}`);
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getMe,
-    logoutUser
+    logoutUser,
+    googleAuthCallback,
+    createToken,
+    cookieOptions
 };

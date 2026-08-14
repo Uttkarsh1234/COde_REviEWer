@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
+const passport = require("./config/passport");
 const routes = require('./routes/review');
 const reviewHistory = require("./routes/reviewHistory");
 const register = require("./routes/authRoutes");
@@ -23,6 +24,8 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 // Health check route
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });

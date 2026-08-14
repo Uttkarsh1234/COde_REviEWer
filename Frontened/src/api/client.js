@@ -94,6 +94,10 @@ class ApiClient {
     }
   }
 
+  getGoogleAuthUrl() {
+    return `${this.baseUrl}/auth/google`;
+  }
+
   // Review & Debug Endpoints
   async reviewCode(code, language) {
     return this.request('/input', {

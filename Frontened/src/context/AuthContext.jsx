@@ -14,6 +14,34 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
+        // 1. Check if returning from OAuth redirect with token or error
+        const params = new URLSearchParams(window.location.search);
+        const urlToken = params.get('token');
+        const authError = params.get('auth_error');
+
+        if (urlToken) {
+          api.setToken(urlToken);
+          const res = await api.getMe();
+          if (res.success && res.user) {
+            setUser(res.user);
+            showToast(`Welcome, ${res.user.name || 'Developer'}!`, 'success');
+          }
+          // Clean token from URL bar for security and cleanliness
+          window.history.replaceState({}, document.title, window.location.pathname);
+          return;
+        }
+
+        if (authError) {
+          showToast(
+            authError === 'google_failed'
+              ? 'Google sign-in was cancelled or failed. Please try again.'
+              : `Authentication error: ${decodeURIComponent(authError)}`,
+            'error'
+          );
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 2. Check existing token in localStorage
         const token = api.getToken();
         if (token) {
           const res = await api.getMe();
@@ -31,7 +59,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuthStatus();
-  }, []);
+  }, [showToast]);
+
+  const loginWithGoogle = () => {
+    window.location.href = api.getGoogleAuthUrl();
+  };
 
   const login = async (email, password) => {
     try {
@@ -104,6 +136,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        loginWithGoogle,
       }}
     >
       {children}
