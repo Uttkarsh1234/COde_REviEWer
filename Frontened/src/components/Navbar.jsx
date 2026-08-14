@@ -8,19 +8,33 @@ import {
   Code2, 
   Layers, 
   Zap,
-  LogIn
+  LogIn,
+  Layout,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SAMPLE_CODES } from '../data/sampleCodes';
 
-export const Navbar = ({ onOpenHistory, historyCount, onLoadSample, onClearEditor }) => {
+export const Navbar = ({ 
+  currentView = 'landing',
+  onNavigate,
+  onOpenHistory, 
+  historyCount, 
+  onLoadSample, 
+  onClearEditor 
+}) => {
   const { user, logout, openLogin, openRegister } = useAuth();
 
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        {/* Brand */}
-        <div className="nav-brand">
+        {/* Brand - Clickable to navigate */}
+        <div 
+          className="nav-brand" 
+          onClick={() => onNavigate && onNavigate('landing')}
+          style={{ cursor: 'pointer' }}
+          title="Back to Landing Overview"
+        >
           <div className="brand-icon-wrapper">
             <Bug size={22} color="#ffffff" />
           </div>
@@ -35,6 +49,30 @@ export const Navbar = ({ onOpenHistory, historyCount, onLoadSample, onClearEdito
 
         {/* Right Nav Actions */}
         <div className="nav-actions">
+          {/* Navigation View Switcher (Workspace vs Home) */}
+          {currentView === 'landing' ? (
+            <button
+              id="nav-launch-workspace-btn"
+              className="btn btn-primary"
+              onClick={() => onNavigate && onNavigate('workspace')}
+              style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+            >
+              <Code2 size={16} />
+              <span>Launch Workspace</span>
+              <ArrowRight size={14} />
+            </button>
+          ) : (
+            <button
+              id="nav-home-btn"
+              className="btn btn-secondary"
+              onClick={() => onNavigate && onNavigate('landing')}
+              title="Return to Landing Page & Overview"
+            >
+              <Sparkles size={15} color="#38bdf8" />
+              <span>Overview</span>
+            </button>
+          )}
+
           {/* Status Indicator */}
           <div className="status-badge" title="AI Gemini Engine Connected">
             <span className="status-dot"></span>
@@ -42,29 +80,31 @@ export const Navbar = ({ onOpenHistory, historyCount, onLoadSample, onClearEdito
           </div>
 
           {/* Preset Samples Selector */}
-          <div style={{ position: 'relative' }}>
-            <select
-              className="custom-select"
-              style={{ fontSize: '0.8rem', padding: '0.45rem 2rem 0.45rem 0.75rem' }}
-              onChange={(e) => {
-                if (e.target.value) {
-                  onLoadSample(e.target.value);
-                  e.target.value = '';
-                }
-              }}
-              defaultValue=""
-              aria-label="Load Sample Buggy Code"
-            >
-              <option value="" disabled>✨ Load Sample Buggy Code...</option>
-              {SAMPLE_CODES.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {currentView === 'workspace' && (
+            <div style={{ position: 'relative' }}>
+              <select
+                className="custom-select"
+                style={{ fontSize: '0.8rem', padding: '0.45rem 2rem 0.45rem 0.75rem' }}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onLoadSample(e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+                aria-label="Load Sample Buggy Code"
+              >
+                <option value="" disabled>✨ Load Sample Buggy Code...</option>
+                {SAMPLE_CODES.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
-          {/* History Button */}
+          {/* History Button (Available in workspace or opens drawer) */}
           <button
             className="btn btn-secondary"
             onClick={onOpenHistory}

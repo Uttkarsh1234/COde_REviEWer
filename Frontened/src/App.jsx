@@ -7,6 +7,7 @@ import { CodeEditor } from './components/CodeEditor';
 import { ReviewPanel } from './components/ReviewPanel';
 import { HistoryDrawer } from './components/HistoryDrawer';
 import { AuthModal } from './components/AuthModal';
+import { LandingHero } from './components/LandingHero';
 import { SAMPLE_CODES } from './data/sampleCodes';
 import api from './api/client';
 
@@ -31,6 +32,8 @@ function MainApp() {
   const { user, openLogin } = useAuth();
   const { showToast } = useToast();
 
+  // Navigation View: 'landing' (animated intro page) or 'workspace' (code reviewer IDE)
+  const [currentView, setCurrentView] = useState('landing');
   const [code, setCode] = useState(initialDefaultCode);
   const [language, setLanguage] = useState('javascript');
   const [reviewResult, setReviewResult] = useState(null);
@@ -96,6 +99,12 @@ function MainApp() {
     }
   };
 
+  // Launch workspace from landing
+  const handleGetStarted = () => {
+    setCurrentView('workspace');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Load preset sample
   const handleLoadSample = (sampleId) => {
     const sample = SAMPLE_CODES.find((s) => s.id === sampleId);
@@ -103,7 +112,9 @@ function MainApp() {
       setCode(sample.code);
       setLanguage(sample.language);
       setReviewResult(null);
+      setCurrentView('workspace');
       showToast(`Loaded "${sample.name}"`, 'info');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -121,7 +132,9 @@ function MainApp() {
     if (item.output) {
       setReviewResult(item.output);
     }
+    setCurrentView('workspace');
     showToast(`Loaded review from ${new Date(item.createdAt).toLocaleDateString()}`, 'info');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Delete from history
@@ -149,6 +162,11 @@ function MainApp() {
     <div className="app-container">
       {/* Top Navbar */}
       <Navbar
+        currentView={currentView}
+        onNavigate={(view) => {
+          setCurrentView(view);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
         onOpenHistory={() => {
           if (!user) {
             showToast('Please sign in to view your saved review history', 'info');
@@ -162,40 +180,47 @@ function MainApp() {
         onClearEditor={handleClearEditor}
       />
 
-      {/* Main Workspace Area */}
-      <main className="main-content">
-        {/* Quick Stats Bar */}
-        <StatsBar
-          totalReviews={history.length}
-          totalBugsFound={totalBugsFound}
-          currentComplexity={{
-            time: reviewResult?.timeComplexity,
-            space: reviewResult?.spaceComplexity,
-          }}
-          currentLanguage={language}
+      {/* Main Views Container */}
+      {currentView === 'landing' ? (
+        <LandingHero
+          onGetStarted={handleGetStarted}
+          onTrySample={handleLoadSample}
         />
-
-        {/* 2-Column Responsive Workspace Grid */}
-        <div className="workspace-grid">
-          {/* Left Column: Code Editor */}
-          <CodeEditor
-            code={code}
-            setCode={setCode}
-            language={language}
-            setLanguage={setLanguage}
-            onReview={handleReviewCode}
-            isLoading={isLoading}
-            onClear={handleClearEditor}
+      ) : (
+        <main className="main-content animate-fade-in-up">
+          {/* Quick Stats Bar */}
+          <StatsBar
+            totalReviews={history.length}
+            totalBugsFound={totalBugsFound}
+            currentComplexity={{
+              time: reviewResult?.timeComplexity,
+              space: reviewResult?.spaceComplexity,
+            }}
+            currentLanguage={language}
           />
 
-          {/* Right Column: AI Review & Debugging Results */}
-          <ReviewPanel
-            result={reviewResult}
-            isLoading={isLoading}
-            onReScan={handleReviewCode}
-          />
-        </div>
-      </main>
+          {/* 2-Column Responsive Workspace Grid */}
+          <div className="workspace-grid">
+            {/* Left Column: Code Editor */}
+            <CodeEditor
+              code={code}
+              setCode={setCode}
+              language={language}
+              setLanguage={setLanguage}
+              onReview={handleReviewCode}
+              isLoading={isLoading}
+              onClear={handleClearEditor}
+            />
+
+            {/* Right Column: AI Review & Debugging Results */}
+            <ReviewPanel
+              result={reviewResult}
+              isLoading={isLoading}
+              onReScan={handleReviewCode}
+            />
+          </div>
+        </main>
+      )}
 
       {/* History Slide-over Drawer */}
       <HistoryDrawer
