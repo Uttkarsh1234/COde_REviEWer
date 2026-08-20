@@ -22,11 +22,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 // Health check route
-app.get("/api/health", (req, res) => {
+app.get("/", (req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.use('/', routes);
+app.use('/review/input', routes);
 app.use("/api/review", reviewHistory);
 app.use("/api/auth", register);
 
