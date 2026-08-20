@@ -26,7 +26,7 @@ app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.use('/api/input', routes);
+app.use('/', routes);
 app.use("/api/review", reviewHistory);
 app.use("/api/auth", register);
 
