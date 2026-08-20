@@ -95,7 +95,7 @@ class ApiClient {
   }
 
   getGoogleAuthUrl() {
-    return `${this.baseUrl}/auth/google`;
+    return `${this.baseUrl}/auth/google/callback`;
   }
 
   // Review & Debug Endpoints
