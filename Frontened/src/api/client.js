@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://codereviewer-app.onrender.com/api';
 
 class ApiClient {
   constructor() {
@@ -48,7 +48,7 @@ class ApiClient {
       return data;
     } catch (error) {
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to the backend server. Please make sure the backend is running at http://localhost:5000.');
+        throw new Error('Unable to connect to the backend server.');
       }
       throw error;
     }
@@ -95,7 +95,7 @@ class ApiClient {
   }
 
   getGoogleAuthUrl() {
-    return `${this.baseUrl}/auth/google/callback`;
+    return `${this.baseUrl}/auth/google`;
   }
 
   // Review & Debug Endpoints
