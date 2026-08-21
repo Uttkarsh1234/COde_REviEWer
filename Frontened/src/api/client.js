@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://codereviewer-app.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://codereviewer-app.onrender.com/api');
 
 class ApiClient {
   constructor() {
@@ -48,7 +48,7 @@ class ApiClient {
       return data;
     } catch (error) {
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to the backend server.');
+        throw new Error(`Unable to connect to the backend server at ${this.baseUrl}. Please make sure the backend is running.`);
       }
       throw error;
     }
