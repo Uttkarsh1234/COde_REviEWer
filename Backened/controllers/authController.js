@@ -188,20 +188,32 @@ const logoutUser = async (req, res) => {
 };
 
 const googleAuthCallback = async (req, res) => {
-    try {
-        const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/+$/, '');
-        if (!req.user) {
-            return res.redirect(`${frontendUrl}/?auth_error=authentication_failed`);
-        }
+  try {
+    const frontendUrl = (
+      process.env.FRONTEND_URL || "http://localhost:5173"
+    ).replace(/\/+$/, "");
 
-        const token = createToken(req.user._id);
-        res.cookie("token", token, cookieOptions);
-        return res.redirect(`${frontendUrl}/?token=${token}&login=success`);
-    } catch (error) {
-        console.error("Google OAuth callback error:", error);
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-        return res.redirect(`${frontendUrl}/?auth_error=${encodeURIComponent(error.message || "oauth_failed")}`);
+    if (!req.user) {
+      return res.redirect(
+        `${frontendUrl}/?auth_error=authentication_failed`
+      );
     }
+
+    const token = createToken(req.user._id);
+
+    res.cookie("token", token, cookieOptions);
+
+    return res.redirect(
+      `${frontendUrl}/?token=${token}&login=success`
+    );
+
+  } catch (error) {
+    console.error("Google OAuth callback error:", error);
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/?auth_error=oauth_failed`
+    );
+  }
 };
 
 module.exports = {

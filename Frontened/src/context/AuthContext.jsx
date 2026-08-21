@@ -20,14 +20,32 @@ export const AuthProvider = ({ children }) => {
         const authError = params.get('auth_error');
 
         if (urlToken) {
+          console.log("OAuth token received");
+
           api.setToken(urlToken);
+
           const res = await api.getMe();
+
+          console.log("OAuth getMe response:", res);
+
           if (res.success && res.user) {
             setUser(res.user);
-            showToast(`Welcome, ${res.user.name || 'Developer'}!`, 'success');
+
+            showToast(
+              `Welcome, ${res.user.name || 'Developer'}!`,
+              'success'
+            );
+          } else {
+            console.error("Failed to get OAuth user:", res);
+            api.setToken(null);
           }
-          // Clean token from URL bar for security and cleanliness
-          window.history.replaceState({}, document.title, window.location.pathname);
+
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+
           return;
         }
 
